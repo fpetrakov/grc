@@ -2,36 +2,48 @@
 
 const os = require("os");
 const fs = require("fs");
-const path = require("path");
 const { Command } = require("commander");
+
+const addPathToConfig = require("./addPathToConfig");
 const generateComponentFiles = require("./generateComponentFiles.js");
 
 const program = new Command();
 
 program
   .name("grc")
-  .description("CLI to create React component files")
-  .version("0.0.1");
+  .description("CLI to create React components")
+  .version("0.1.0");
 
 program
-  .argument("<name>", "name of the component")
-  .option("-p, --path <path>", "path to folder with components")
+  .argument("<name>", "component's name")
+  .option("-p, --path <path>", "components folder path")
+  .option("-k, --key <key>", "key to path from config")
   .action((name, options) => {
-    const settingsFilePath = os.tmpdir() + "/.grcrc.json";
+    const configPath = os.tmpdir() + "/.grcrc.json";
 
-    if (!options.path && !fs.existsSync(settingsFilePath)) {
-      throw Error("specify path to components folder");
+    if (!options.path && !options.key) {
+      throw Error("specify path to components folder or path key");
     }
 
-    if (options.path && !fs.existsSync(settingsFilePath)) {
-      fs.writeFileSync(settingsFilePath, `{"path":"${options.path}"}`);
+    if (!options.path && !fs.existsSync(configPath) && options.key) {
+      throw Error(`there is not such key`);
     }
 
-    if (options.path && fs.existsSync(settingsFilePath)) {
+    if (options.path && options.key) {
+      addPathToConfig(configPath, options.path, options.key);
       generateComponentFiles(options.path, name);
-    } else {
-      const { path } = JSON.parse(fs.readFileSync(settingsFilePath));
-      generateComponentFiles(path, name);
+      return;
+    }
+
+    if (options.path && !options.key) {
+      generateComponentFiles(options.path, name);
+      return;
+    }
+
+    if (!options.path && options.key) {
+      const path = JSON.parse(fs.readFileSync(configPath));
+      generateComponentFiles(path[options.key], name);
+      return;
     }
   });
 
