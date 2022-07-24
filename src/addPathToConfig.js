@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const addPathToConfig = (configPath, path, key) => {
   if (!fs.existsSync(configPath)) {
     const config = {};
@@ -7,7 +9,10 @@ const addPathToConfig = (configPath, path, key) => {
 
   const config = JSON.parse(fs.readFileSync(configPath));
 
-  if (config[key]) throw Error("path with that key already exists");
+  if (config[key]) {
+    console.error("path with that key already exists");
+    process.exit(1);
+  }
 
   config[key] = path;
 

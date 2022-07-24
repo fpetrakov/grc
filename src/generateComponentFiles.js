@@ -26,29 +26,32 @@ export const ${componentName}: React.FC<${componentName}Props> = ({}) => {
 }
 `;
 
-  const throwError = (err) => {
-    if (err) throw Error(err.message);
+  const handleError = (err) => {
+    if (err) {
+      console.error(err.message);
+      process.exit(1);
+    }
   };
 
   const newComponentFolderPath = path.resolve(
     path.join(process.cwd(), componentsFolderPath, componentName),
   );
 
-  fs.mkdirSync(`${newComponentFolderPath}`, throwError);
+  fs.mkdirSync(`${newComponentFolderPath}`, handleError);
   fs.writeFileSync(
     `${newComponentFolderPath}/${componentName}.tsx`,
     tsxFileContents,
-    throwError,
+    handleError,
   );
   fs.writeFileSync(
     `${newComponentFolderPath}/index.ts`,
     indexFileContents,
-    throwError,
+    handleError,
   );
   fs.writeFileSync(
     `${newComponentFolderPath}/${componentName}.scss`,
     scssFileContents,
-    throwError,
+    handleError,
   );
 
   console.log("Component was successfully created!");

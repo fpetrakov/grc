@@ -22,28 +22,30 @@ program
     const configPath = os.tmpdir() + "/.grcrc.json";
 
     if (!options.path && !options.key) {
-      throw Error("specify path to components folder or path key");
+      console.error("specify path to components folder or path key");
+      process.exit(1);
     }
 
     if (!options.path && !fs.existsSync(configPath) && options.key) {
-      throw Error(`there is not such key`);
+      console.error(`there is not such key`);
+      process.exit(1);
     }
 
     if (options.path && options.key) {
       addPathToConfig(configPath, options.path, options.key);
       generateComponentFiles(options.path, name);
-      return;
+      process.exit(0);
     }
 
     if (options.path && !options.key) {
       generateComponentFiles(options.path, name);
-      return;
+      process.exit(0);
     }
 
     if (!options.path && options.key) {
       const path = JSON.parse(fs.readFileSync(configPath));
       generateComponentFiles(path[options.key], name);
-      return;
+      process.exit(0);
     }
   });
 
